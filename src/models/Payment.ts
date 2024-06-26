@@ -3,6 +3,7 @@ export interface PaymentModel {
   date: string;
   price: string;
   userId?: string;
+  observation?: string;
 }
 
 export type PaymentsModel = Array<PaymentModel>;
