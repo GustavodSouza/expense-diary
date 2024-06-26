@@ -3,6 +3,9 @@
     <q-page-container>
       <q-page class="q-pa-md">
         <h5>Register New Payment</h5>
+        <div class="row q-pb-md">
+          <q-input label="Total" v-model="total" readonly bg-color="grey-4" />
+        </div>
         <div class="row q-gutter-md">
           <q-input filled v-model="description" label="Description" />
           <q-input filled type="date" v-model="date" label="Date" />
@@ -27,6 +30,7 @@ import { PaymentModel, PaymentsModel } from 'src/models/Payment';
 import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from 'src/boot/firebase';
 import { getUsers } from 'src/services/StorageService';
+import Calculation from 'src/utils/Calculation';
 
 export default defineComponent({
   name: 'PaymentsComponent',
@@ -35,7 +39,7 @@ export default defineComponent({
     return {
       description: ref<string>(),
       date: ref<string>(),
-      price: ref<number>(),
+      price: ref<string>(),
       rows: ref<PaymentsModel>([]),
       columns: [
         {
@@ -61,6 +65,7 @@ export default defineComponent({
           sortable: true,
         },
       ],
+      total: ref<number>(0),
     };
   },
 
@@ -75,17 +80,17 @@ export default defineComponent({
       const newPayment: PaymentModel = {
         description: this.description ?? '',
         date: this.date ?? '',
-        price: this.price ?? 0,
+        price: this.price ?? '',
         userId: user.userId,
       };
 
       const paymentsRef = collection(db, 'Payments');
 
-      addDoc(paymentsRef, newPayment)
-        .then((callback) => {
-          console.log('New Payment Add', callback);
-        })
-        .then(() => this.getPaymentsPerUser());
+      addDoc(paymentsRef, newPayment).then((callback) => {
+        console.log('New Payment Add', callback);
+        this.getPaymentsPerUser();
+        this.clearFields();
+      });
     },
 
     async getPaymentsPerUser(): Promise<void> {
@@ -102,9 +107,20 @@ export default defineComponent({
             price: user.data().price,
           };
           this.rows.push(responsePayment);
+          this.getTotal();
           console.log('Payload', user.data());
         });
       });
+    },
+
+    clearFields(): void {
+      this.description = '';
+      this.date = '';
+      this.price = null;
+    },
+
+    getTotal(): void {
+      this.total = Calculation.getTotalPrice(this.rows);
     },
   },
 });

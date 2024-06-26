@@ -90,6 +90,14 @@ export default defineComponent({
 
       await signInWithPopup(auth, googleAuthProvider).then((response: any) => {
         console.log('Login google', response);
+        const userResponse: UserModel = {
+          name: response.user.displayName,
+          mail: response.user.email,
+          userId: response.user.uid,
+        };
+
+        this.setUserInfoInStorage(userResponse);
+        this.$router.push('/payments');
       });
     },
 

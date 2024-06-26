@@ -1,7 +1,7 @@
 export interface PaymentModel {
   description: string;
   date: string;
-  price: number;
+  price: string;
   userId?: string;
 }
 
