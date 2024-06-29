@@ -13,6 +13,7 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "@quasar/extras": "^1.16.4",
     "@vueuse/firebase": "^10.10.1",
     "firebase": "^10.12.2",

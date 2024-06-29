@@ -11,7 +11,7 @@
       </q-header>
 
       <q-page-container>
-        <q-page class="q-pa-md">
+        <q-page class="q-pl-md q-pr-md">
           <router-view />
         </q-page>
       </q-page-container>

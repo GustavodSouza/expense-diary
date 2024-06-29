@@ -1,67 +1,143 @@
 <template>
-  <q-layout view="lHh lpr lFf" container style="height: 100vh" class="shadow-2">
-    <q-page-container>
-      <q-page class="q-pa-md">
-        <h5>Register New Payment</h5>
-        <div class="row q-pb-md">
-          <q-input
-            filled
-            label="Total"
-            v-model="total"
-            disable
-            bg-color="grey-4"
-          />
-        </div>
-        <div class="row items-center q-gutter-md">
-          <q-input filled v-model="description" label="Description" />
-          <q-input filled type="date" v-model="date" label="Date" />
-          <q-input filled v-model="price" label="Price" />
-          <q-input
-            v-if="isObservationShow"
-            filled
-            v-model="observation"
-            label="Observation"
-          />
-          <q-btn
-            style="width: 2%; height: 2%"
-            round
-            color="primary"
-            :icon="!isObservationShow ? 'add' : 'remove'"
-            @click="isObservationShow = !isObservationShow"
-          />
-          <q-btn
-            @click="registerPayment"
-            label="Register Payment"
-            color="primary"
-          />
-        </div>
-        <div class="row q-pt-lg">
-          <q-input
-            class="q-pb-md"
-            filled
-            type="month"
-            v-model="monthYearFilter"
-            label="Filter Month and Year"
-            @update:model-value="changeFilterDate"
-          />
-          <q-table class="full-width" :rows="rows" :columns="columns" />
-        </div>
-      </q-page>
-    </q-page-container>
-  </q-layout>
+  <q-page-container>
+    <q-page>
+      <span class="text-h5">Register New Payment</span>
+      <div class="row q-pb-md q-pt-md">
+        <q-input
+          filled
+          label="Total"
+          v-model="total"
+          disable
+          bg-color="grey-4"
+        />
+      </div>
+      <div class="row items-center q-gutter-md">
+        <q-input filled v-model="description" label="Description" />
+        <q-input filled type="date" v-model="date" label="Date" />
+        <q-input filled v-money="money" v-model="price" label="Price" />
+        <q-input
+          v-if="isObservationShow"
+          filled
+          v-model="observation"
+          label="Observation"
+        />
+        <q-btn
+          style="width: 2%; height: 2%"
+          round
+          color="primary"
+          :icon="!isObservationShow ? 'add' : 'remove'"
+          @click="isObservationShow = !isObservationShow"
+        />
+        <q-btn
+          @click="registerPayment"
+          label="Register Payment"
+          color="primary"
+        />
+      </div>
+      <div class="row q-pt-lg">
+        <q-input
+          class="q-pb-md"
+          filled
+          type="month"
+          v-model="monthYearFilter"
+          label="Filter Month and Year"
+          @update:model-value="changeFilterDate"
+        />
+        <q-table
+          class="full-width"
+          :rows="rows"
+          :columns="columns"
+          table-header-style="background-color: #3988d6; color: #fff"
+          separator="cell"
+        >
+          <template #body="props">
+            <q-tr>
+              <q-td>
+                {{ props.row.description }}
+                <q-icon v-if="props.row.observation" name="warning">
+                  <q-tooltip>
+                    <span>{{ props.row.observation }}</span>
+                  </q-tooltip>
+                </q-icon>
+              </q-td>
+              <q-td>
+                {{ props.row.date }}
+              </q-td>
+              <q-td>
+                {{ formatPrice(props.row.price) }}
+              </q-td>
+              <q-td>
+                <q-btn
+                  class="q-mr-md"
+                  style="width: 1%; height: 1%"
+                  round
+                  color="positive"
+                  icon="menu"
+                />
+                <q-menu fit>
+                  <q-list style="min-width: 100px">
+                    <q-item class="items-center" clickable>
+                      <q-icon
+                        color="positive"
+                        class="q-pr-sm"
+                        size="18px"
+                        name="edit"
+                      />
+                      <q-item-section @click="openModalEdit(props.row)"
+                        >Edit</q-item-section
+                      >
+                    </q-item>
+                    <q-separator />
+                    <q-item class="items-center" clickable>
+                      <q-icon
+                        color="negative"
+                        class="q-pr-sm"
+                        size="18px"
+                        name="delete"
+                      />
+                      <q-item-section @click="removePayment(props.row)"
+                        >Remove</q-item-section
+                      >
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+        <ModalEdit ref="modalEdit" />
+        <ModalConfirm ref="modalConfirm" />
+      </div>
+    </q-page>
+  </q-page-container>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { PaymentModel, PaymentsModel } from 'src/models/Payment';
-import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  deleteDoc,
+} from 'firebase/firestore';
 import { db } from 'src/boot/firebase';
 import { getUsers } from 'src/services/StorageService';
 import Calculation from 'src/utils/Calculation';
 import DateHelpers from 'src/helpers/date-helpers';
+import formatMoneyHelpers from 'src/helpers/format-money-helpers';
+import ModalEdit from 'src/components/dialog/ModalEdit.vue';
+import ModalConfirm from 'src/components/dialog/ModalConfirm.vue';
 
 export default defineComponent({
   name: 'PaymentsComponent',
+  components: {
+    ModalEdit,
+    ModalConfirm,
+  },
   data() {
     return {
       description: ref<string>(),
@@ -93,9 +169,17 @@ export default defineComponent({
           field: 'price',
           sortable: true,
         },
+        {
+          name: 'acoes',
+          align: 'left',
+          label: 'Ações',
+          field: 'acoes',
+          sortable: false,
+        },
       ],
-      total: ref<number>(0),
+      total: ref<string>(),
       monthYearFilter: ref(),
+      money: { precision: 2, prefix: 'R$ ', thousands: '.', decimal: ',' },
     };
   },
 
@@ -118,8 +202,7 @@ export default defineComponent({
 
       const paymentsRef = collection(db, 'Payments');
 
-      addDoc(paymentsRef, newPayment).then((callback) => {
-        console.log('New Payment Add', callback);
+      addDoc(paymentsRef, newPayment).then(() => {
         this.getPaymentsPerUser();
         this.clearFields();
       });
@@ -134,6 +217,7 @@ export default defineComponent({
       month: string,
       year: string | number
     ): Promise<void> {
+      this.$q.loading.show();
       this.rows = [];
       const user = getUsers();
       const payments = collection(db, 'Payments');
@@ -144,21 +228,24 @@ export default defineComponent({
         where('date', '<', `${year}-${month}-30`)
       );
 
-      getDocs(q).then((query) => {
-        query.forEach((user) => {
-          const responsePayment: PaymentModel = {
-            description: user.data().description,
-            date: DateHelpers.maskDate(
-              user.data().date,
-              DateHelpers.IFormatDate.BACK_SLASH_FORMAT
-            ),
-            price: user.data().price,
-          };
-          this.rows.push(responsePayment);
-          this.getTotal();
-          console.log('Payload', user.data());
-        });
-      });
+      getDocs(q)
+        .then((query) => {
+          query.forEach((payment) => {
+            const responsePayment: PaymentModel = {
+              description: payment.data().description,
+              date: DateHelpers.maskDate(
+                payment.data().date,
+                DateHelpers.IFormatDate.BACK_SLASH_FORMAT
+              ),
+              price: payment.data().price,
+              observation: payment.data().observation,
+              paymentId: payment.id,
+            };
+            this.rows.push(responsePayment);
+            this.getTotal();
+          });
+        })
+        .finally(this.$q.loading.hide);
     },
 
     clearFields(): void {
@@ -166,10 +253,13 @@ export default defineComponent({
       this.date = '';
       this.price = '';
       this.observation = '';
+      this.isObservationShow = false;
     },
 
     getTotal(): void {
-      this.total = Calculation.getTotalPrice(this.rows);
+      this.total = formatMoneyHelpers.formatBRMoney(
+        Calculation.getTotalPrice(this.rows)
+      );
     },
 
     setCurrentDate(): void {
@@ -179,9 +269,50 @@ export default defineComponent({
 
     changeFilterDate(): void {
       const { year, month } = DateHelpers.splitDateFromParameter(
-        this.monthYearFilter
+        this.monthYearFilter,
+        DateHelpers.IFormatDate.TRACES_FORMAT
       );
       this.getPaymentsRequest(month, year);
+    },
+
+    openModalEdit(row: PaymentModel): void {
+      this.$refs.modalEdit.openDialog(row).then((callback: PaymentModel) => {
+        if (callback) {
+          this.$q.loading.show();
+          db.collection('Payments')
+            .doc(callback.paymentId)
+            .update(callback)
+            .then(() => {
+              this.getPaymentsPerUser();
+            })
+            .finally(this.$q.loading.hide);
+        }
+      });
+    },
+
+    formatPrice(value: number): string {
+      return formatMoneyHelpers.formatBRMoney(value);
+    },
+
+    async removePayment(payment: PaymentModel): Promise<void> {
+      const options = {
+        title: 'Remove Payment',
+        text: `Confirm '${payment.description}' payment removal?`,
+      };
+
+      this.$refs.modalConfirm
+        .openDialog(options)
+        .then(async (callback: boolean) => {
+          if (callback) {
+            this.$q.loading.show();
+            const docRef = doc(db, 'Payments', payment.paymentId);
+            await deleteDoc(docRef)
+              .then(() => {
+                this.getPaymentsPerUser();
+              })
+              .finally(this.$q.loading.hide);
+          }
+        });
     },
   },
 });

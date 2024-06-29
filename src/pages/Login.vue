@@ -1,5 +1,5 @@
 <template>
-  <q-card class="my-card">
+  <q-card class="q-mt-md">
     <q-card-section>
       <span class="text-subtitle2">Login</span>
     </q-card-section>
@@ -45,11 +45,10 @@ export default defineComponent({
 
   methods: {
     async login(): Promise<void> {
-      // Login
+      this.$q.loading.show();
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, this.mail, this.password)
         .then((response) => {
-          console.log(response);
           this.getUserInfo(response.user?.uid ?? '');
           if (response) {
             this.$router.push('/payments');
@@ -57,7 +56,8 @@ export default defineComponent({
         })
         .catch((error) => {
           console.error(error);
-        });
+        })
+        .finally(this.$q.loading.hide);
     },
 
     async getUserInfo(userId: string): Promise<void> {
@@ -66,8 +66,6 @@ export default defineComponent({
 
       getDocs(q).then((query) => {
         query.forEach((user) => {
-          console.log('Nomee', user.data());
-
           const userResponse: UserModel = {
             name: user.data().name,
             mail: user.data().mail,
@@ -84,21 +82,22 @@ export default defineComponent({
     },
 
     async loginGoogle() {
-      // const provider = new firebase.auth.GoogleAuthProvider();
+      this.$q.loading.show();
       const googleAuthProvider = new GoogleAuthProvider();
       const auth = getAuth();
 
-      await signInWithPopup(auth, googleAuthProvider).then((response: any) => {
-        console.log('Login google', response);
-        const userResponse: UserModel = {
-          name: response.user.displayName,
-          mail: response.user.email,
-          userId: response.user.uid,
-        };
+      await signInWithPopup(auth, googleAuthProvider)
+        .then((response: any) => {
+          const userResponse: UserModel = {
+            name: response.user.displayName,
+            mail: response.user.email,
+            userId: response.user.uid,
+          };
 
-        this.setUserInfoInStorage(userResponse);
-        this.$router.push('/payments');
-      });
+          this.setUserInfoInStorage(userResponse);
+          this.$router.push('/payments');
+        })
+        .finally(this.$q.loading.hide);
     },
 
     async vincularConta() {

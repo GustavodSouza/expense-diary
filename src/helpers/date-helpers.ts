@@ -11,11 +11,28 @@ export const getCurrentDateSplit = () => {
   return { year, month };
 };
 
-export const splitDateFromParameter = (date: string) => {
-  const dateSplited = date.split('-');
-  const year = dateSplited[0];
-  const month = dateSplited[1];
-  const day = dateSplited[2];
+export const splitDateFromParameter = (
+  date: string,
+  formatSplit: IFormatDate
+) => {
+  let dateSplited;
+  let year = '';
+  let month = '';
+  let day = '';
+
+  if (formatSplit === IFormatDate.TRACES_FORMAT) {
+    dateSplited = date.split('-');
+    year = dateSplited[0];
+    month = dateSplited[1];
+    day = dateSplited[2];
+  }
+
+  if (formatSplit === IFormatDate.BACK_SLASH_FORMAT) {
+    dateSplited = date.split('/');
+    year = dateSplited[0];
+    month = dateSplited[1];
+    day = dateSplited[2];
+  }
 
   return { year, month, day };
 };

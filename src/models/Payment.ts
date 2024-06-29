@@ -4,6 +4,7 @@ export interface PaymentModel {
   price: string;
   userId?: string;
   observation?: string;
+  paymentId?: string;
 }
 
 export type PaymentsModel = Array<PaymentModel>;
