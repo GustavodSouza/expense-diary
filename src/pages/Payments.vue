@@ -1,114 +1,112 @@
 <template>
-  <q-page-container>
-    <q-page>
-      <span class="text-h5">Register New Payment</span>
-      <div class="row q-pb-md q-pt-md">
-        <q-input
-          filled
-          label="Total"
-          v-model="total"
-          disable
-          bg-color="grey-4"
-        />
-      </div>
-      <div class="row items-center q-gutter-md">
-        <q-input filled v-model="description" label="Description" />
-        <q-input filled type="date" v-model="date" label="Date" />
-        <q-input filled v-money="money" v-model="price" label="Price" />
-        <q-input
-          v-if="isObservationShow"
-          filled
-          v-model="observation"
-          label="Observation"
-        />
-        <q-btn
-          style="width: 2%; height: 2%"
-          round
-          color="primary"
-          :icon="!isObservationShow ? 'add' : 'remove'"
-          @click="isObservationShow = !isObservationShow"
-        />
-        <q-btn
-          @click="registerPayment"
-          label="Register Payment"
-          color="primary"
-        />
-      </div>
-      <div class="row q-pt-lg">
-        <q-input
-          class="q-pb-md"
-          filled
-          type="month"
-          v-model="monthYearFilter"
-          label="Filter Month and Year"
-          @update:model-value="changeFilterDate"
-        />
-        <q-table
-          class="full-width"
-          :rows="rows"
-          :columns="columns"
-          table-header-style="background-color: #3988d6; color: #fff"
-          separator="cell"
-        >
-          <template #body="props">
-            <q-tr>
-              <q-td>
-                {{ props.row.description }}
-                <q-icon v-if="props.row.observation" name="warning">
-                  <q-tooltip>
-                    <span>{{ props.row.observation }}</span>
-                  </q-tooltip>
-                </q-icon>
-              </q-td>
-              <q-td>
-                {{ props.row.date }}
-              </q-td>
-              <q-td>
-                {{ formatPrice(props.row.price) }}
-              </q-td>
-              <q-td>
-                <q-btn
-                  class="q-mr-md"
-                  style="width: 1%; height: 1%"
-                  round
-                  color="positive"
-                  icon="menu"
-                />
-                <q-menu fit>
-                  <q-list style="min-width: 100px">
-                    <q-item class="items-center" clickable>
-                      <q-icon
-                        color="positive"
-                        class="q-pr-sm"
-                        size="18px"
-                        name="edit"
-                      />
-                      <q-item-section @click="openModalEdit(props.row)"
-                        >Edit</q-item-section
-                      >
-                    </q-item>
-                    <q-separator />
-                    <q-item class="items-center" clickable>
-                      <q-icon
-                        color="negative"
-                        class="q-pr-sm"
-                        size="18px"
-                        name="delete"
-                      />
-                      <q-item-section @click="removePayment(props.row)"
-                        >Remove</q-item-section
-                      >
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-td>
-            </q-tr>
-          </template>
-        </q-table>
-        <ModalEdit ref="modalEdit" />
-        <ModalConfirm ref="modalConfirm" />
-      </div>
-    </q-page>
+  <q-page-container style="padding: 0px !important;">
+    <span class="text-h5">Register New Payment</span>
+    <div class="row q-pb-md q-pt-md">
+      <q-input
+        filled
+        label="Total"
+        v-model="total"
+        disable
+        bg-color="grey-4"
+      />
+    </div>
+    <div class="row items-center q-gutter-md">
+      <q-input filled v-model="description" label="Description" />
+      <q-input filled type="date" v-model="date" label="Date" />
+      <q-input filled v-money="money" v-model="price" label="Price" />
+      <q-input
+        v-if="isObservationShow"
+        filled
+        v-model="observation"
+        label="Observation"
+      />
+      <q-btn
+        style="width: 2%; height: 2%"
+        round
+        color="primary"
+        :icon="!isObservationShow ? 'add' : 'remove'"
+        @click="isObservationShow = !isObservationShow"
+      />
+      <q-btn
+        @click="registerPayment"
+        label="Register Payment"
+        color="primary"
+      />
+    </div>
+    <div class="row q-pt-lg">
+      <q-input
+        class="q-pb-md"
+        filled
+        type="month"
+        v-model="monthYearFilter"
+        label="Filter Month and Year"
+        @update:model-value="changeFilterDate"
+      />
+      <q-table
+        class="full-width"
+        :rows="rows"
+        :columns="columns"
+        table-header-style="background-color: #3988d6; color: #fff"
+        separator="cell"
+      >
+        <template #body="props">
+          <q-tr>
+            <q-td>
+              {{ props.row.description }}
+              <q-icon v-if="props.row.observation" name="warning">
+                <q-tooltip>
+                  <span>{{ props.row.observation }}</span>
+                </q-tooltip>
+              </q-icon>
+            </q-td>
+            <q-td>
+              {{ props.row.date }}
+            </q-td>
+            <q-td>
+              {{ formatPrice(props.row.price) }}
+            </q-td>
+            <q-td>
+              <q-btn
+                class="q-mr-md"
+                style="width: 1%; height: 1%"
+                round
+                color="positive"
+                icon="menu"
+              />
+              <q-menu fit>
+                <q-list style="min-width: 100px">
+                  <q-item class="items-center" clickable>
+                    <q-icon
+                      color="positive"
+                      class="q-pr-sm"
+                      size="18px"
+                      name="edit"
+                    />
+                    <q-item-section @click="openModalEdit(props.row)"
+                      >Edit</q-item-section
+                    >
+                  </q-item>
+                  <q-separator />
+                  <q-item class="items-center" clickable>
+                    <q-icon
+                      color="negative"
+                      class="q-pr-sm"
+                      size="18px"
+                      name="delete"
+                    />
+                    <q-item-section @click="removePayment(props.row)"
+                      >Remove</q-item-section
+                    >
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
+      <ModalEdit ref="modalEdit" />
+      <ModalConfirm ref="modalConfirm" />
+    </div>
   </q-page-container>
 </template>
 
@@ -177,7 +175,7 @@ export default defineComponent({
           sortable: false,
         },
       ],
-      total: ref<string>(),
+      total: ref<string>('0'),
       monthYearFilter: ref(),
       money: { precision: 2, prefix: 'R$ ', thousands: '.', decimal: ',' },
     };
@@ -219,6 +217,7 @@ export default defineComponent({
     ): Promise<void> {
       this.$q.loading.show();
       this.rows = [];
+      this.total = 'R$ 0'
       const user = getUsers();
       const payments = collection(db, 'Payments');
       const q = query(
@@ -244,6 +243,8 @@ export default defineComponent({
             this.rows.push(responsePayment);
             this.getTotal();
           });
+        }).catch((error) => {
+          console.error(error)
         })
         .finally(this.$q.loading.hide);
     },
