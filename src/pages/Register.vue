@@ -1,20 +1,25 @@
 <template>
-  <q-card class="my-card">
-    <q-card-section>
-      <span class="text-subtitle2">Teste</span>
-    </q-card-section>
-    <q-card-section>
-      <div class="row column q-gutter-md">
-        <q-input filled v-model="name" label="Name" />
-        <q-input filled v-model="mail" label="Mail" />
-        <q-input filled v-model="password" label="Password" />
-        <q-btn @click="finalizeRegister" label="Registrar" color="primary" />
-        <router-link to="/login"
-          ><q-btn label="Voltar" color="secondary"
-        /></router-link>
-      </div>
-    </q-card-section>
-  </q-card>
+  <div class="row full-height">
+    <q-card
+      class="my-card"
+      style="width: 50% !important; height: 50% !important"
+    >
+      <q-card-section>
+        <span class="text-subtitle2">Register</span>
+      </q-card-section>
+      <q-card-section>
+        <div class="row column q-gutter-md">
+          <q-input filled v-model="name" label="Name" />
+          <q-input filled v-model="mail" label="Mail" />
+          <q-input filled v-model="password" label="Password" />
+          <q-btn @click="finalizeRegister" label="Registrar" color="primary" />
+          <router-link to="/login"
+            ><q-btn label="Voltar" color="secondary"
+          /></router-link>
+        </div>
+      </q-card-section>
+    </q-card>
+  </div>
 </template>
 
 <script lang="ts">

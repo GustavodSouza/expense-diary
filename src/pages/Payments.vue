@@ -1,19 +1,31 @@
 <template>
-  <q-page-container style="padding: 0px !important;">
+  <q-page-container style="padding: 0px !important">
     <span class="text-h5">Register New Payment</span>
     <div class="row q-pb-md q-pt-md">
-      <q-input
-        filled
-        label="Total"
-        v-model="total"
-        disable
-        bg-color="grey-4"
-      />
+      <q-input filled label="Total" v-model="total" disable bg-color="grey-4" />
     </div>
     <div class="row items-center q-gutter-md">
-      <q-input filled v-model="description" label="Description" />
-      <q-input filled type="date" v-model="date" label="Date" />
-      <q-input filled v-money="money" v-model="price" label="Price" />
+      <q-input
+        v-model="description"
+        :rules="[
+          (val) => val !== '' || 'Please insert the description of payment',
+        ]"
+        filled
+        label="Description"
+      />
+      <q-input
+        v-model="date"
+        :rules="[(val) => val !== '' || 'Please insert the date of payment']"
+        filled
+        type="date"
+        label="Date"
+      />
+      <q-input
+        v-model.lazy="price"
+        :rules="[(val) => val !== '' || 'Please insert the price of payment']"
+        filled
+        label="Price"
+      />
       <q-input
         v-if="isObservationShow"
         filled
@@ -28,9 +40,10 @@
         @click="isObservationShow = !isObservationShow"
       />
       <q-btn
-        @click="registerPayment"
         label="Register Payment"
         color="primary"
+        :disable="formDisabled"
+        @click="registerPayment"
       />
     </div>
     <div class="row q-pt-lg">
@@ -138,9 +151,9 @@ export default defineComponent({
   },
   data() {
     return {
-      description: ref<string>(),
-      date: ref<string>(),
-      price: ref<string>(),
+      description: ref<string>(''),
+      date: ref<string>(''),
+      price: ref<string>(''),
       observation: ref<string>(),
       isObservationShow: ref<boolean>(false),
       rows: ref<PaymentsModel>([]),
@@ -177,7 +190,6 @@ export default defineComponent({
       ],
       total: ref<string>('0'),
       monthYearFilter: ref(),
-      money: { precision: 2, prefix: 'R$ ', thousands: '.', decimal: ',' },
     };
   },
 
@@ -186,24 +198,34 @@ export default defineComponent({
     this.setCurrentDate();
   },
 
+  computed: {
+    formDisabled(): boolean {
+      return this.description === '' || this.price === '' || this.date === '';
+    },
+  },
+
   methods: {
     async registerPayment(): Promise<void> {
-      const user = getUsers();
+      if (this.formDisabled) {
+        return;
+      } else {
+        const user = getUsers();
 
-      const newPayment: PaymentModel = {
-        description: this.description ?? '',
-        date: this.date ?? '',
-        price: this.price ?? '',
-        userId: user.userId,
-        observation: this.observation ?? '',
-      };
+        const newPayment: PaymentModel = {
+          description: this.description ?? '',
+          date: this.date ?? '',
+          price: this.price ?? '',
+          userId: user.userId,
+          observation: this.observation ?? '',
+        };
 
-      const paymentsRef = collection(db, 'Payments');
+        const paymentsRef = collection(db, 'Payments');
 
-      addDoc(paymentsRef, newPayment).then(() => {
-        this.getPaymentsPerUser();
-        this.clearFields();
-      });
+        addDoc(paymentsRef, newPayment).then(() => {
+          this.getPaymentsPerUser();
+          this.clearFields();
+        });
+      }
     },
 
     async getPaymentsPerUser(): Promise<void> {
@@ -217,7 +239,7 @@ export default defineComponent({
     ): Promise<void> {
       this.$q.loading.show();
       this.rows = [];
-      this.total = 'R$ 0'
+      this.total = 'R$ 0';
       const user = getUsers();
       const payments = collection(db, 'Payments');
       const q = query(
@@ -243,8 +265,9 @@ export default defineComponent({
             this.rows.push(responsePayment);
             this.getTotal();
           });
-        }).catch((error) => {
-          console.error(error)
+        })
+        .catch((error) => {
+          console.error(error);
         })
         .finally(this.$q.loading.hide);
     },
@@ -315,6 +338,10 @@ export default defineComponent({
           }
         });
     },
+
+    teste () {
+      return 'Teste'
+    }
   },
 });
 </script>

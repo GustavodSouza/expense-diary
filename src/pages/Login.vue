@@ -1,21 +1,30 @@
 <template>
-  <q-card class="q-mt-md">
-    <q-card-section>
-      <span class="text-subtitle2">Login</span>
-    </q-card-section>
-    <q-card-section>
-      <div class="row column q-gutter-md">
-        <q-input filled v-model="mail" label="Mail" />
-        <q-input filled v-model="password" label="Password" />
-        <q-btn @click="login" label="Login" color="primary" />
-        <router-link to="/register"
-          ><q-btn label="Cadastre-se" color="secondary"
-        /></router-link>
-        <q-btn label="Google" color="primary" @click="loginGoogle" />
-        <q-btn label="Vincular Conta" color="primary" @click="vincularConta" />
-      </div>
-    </q-card-section>
-  </q-card>
+  <div class="row full-height">
+    <q-card
+      class="q-mt-md"
+      style="width: 50% !important; height: 50% !important"
+    >
+      <q-card-section>
+        <span class="text-subtitle2">Login</span>
+      </q-card-section>
+      <q-card-section>
+        <div class="row column q-gutter-md">
+          <q-input filled v-model="mail" label="Mail" />
+          <q-input filled v-model="password" label="Password" />
+          <q-btn @click="login" label="Login" color="primary" />
+          <router-link to="/register"
+            ><q-btn class="full-width" label="Cadastre-se" color="secondary"
+          /></router-link>
+          <q-btn
+            label="Login with Google"
+            color="primary"
+            @click="loginGoogle"
+          />
+          <q-btn label="Link Account" color="primary" @click="vincularConta" />
+        </div>
+      </q-card-section>
+    </q-card>
+  </div>
 </template>
 
 <script lang="ts">
