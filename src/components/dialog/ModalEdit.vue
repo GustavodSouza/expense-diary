@@ -1,17 +1,18 @@
 <template>
   <q-dialog v-model="isOpenDialog">
-    <q-card style="width: 500px">
+    <q-card class="q-pa-md" style="width: 700px">
       <q-card-section>
         <div class="text-h6">Edit Payment</div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
         <div class="row items-center q-gutter-md">
-          <q-input filled v-model="description" label="Description" />
-          <q-input filled type="date" v-model="date" label="Date" />
-          <q-input filled type="number" v-model="price" label="Price" />
+          <q-input class="col-12" filled v-model="description" label="Description" />
+          <q-input class="col-12" filled type="date" v-model="date" label="Date" />
+          <q-input class="col-12" filled type="number" v-model="price" label="Price" />
           <q-input
             v-if="isObservationShow"
+            class="col-md-12"
             filled
             v-model="observation"
             label="Observation"
@@ -26,9 +27,9 @@
         </div>
       </q-card-section>
 
-      <q-card-actions align="right" class="bg-white text-teal">
-        <q-btn @click="isOpenDialog = false" label="Cancel" color="negative" />
-        <q-btn @click="confirmEdit" label="Confirm" color="positive" />
+      <q-card-actions class="row justify-evenly bg-white text-teal">
+        <q-btn class="col-5" @click="isOpenDialog = false" label="Cancel" color="negative" no-caps unelevated />
+        <q-btn class="col-5" @click="confirmEdit" label="Confirm" color="positive" no-caps unelevated />
       </q-card-actions>
     </q-card>
   </q-dialog>

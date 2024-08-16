@@ -1,8 +1,8 @@
 <template>
   <div class="row full-height">
     <q-card
-      class="q-mt-md"
-      style="width: 50% !important; height: 50% !important"
+      class="col-md-4 col-sm-12 col-xs-12 q-mt-md"
+      style="height: 50% !important"
     >
       <q-card-section>
         <span class="text-subtitle2">Login</span>

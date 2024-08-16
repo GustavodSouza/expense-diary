@@ -2,10 +2,14 @@
   <q-page-container style="padding: 0px !important">
     <span class="text-h5">Register New Payment</span>
     <div class="row q-pb-md q-pt-md">
-      <q-input filled label="Total" v-model="total" disable bg-color="grey-4" />
+      <!-- <q-input class="col-md-2 col-xs-11" filled label="Total" v-model="total" disable bg-color="grey-4" /> -->
+      <div class="card-total">
+        {{ total }}
+      </div>
     </div>
-    <div class="row items-center q-gutter-md">
+    <div class="row items-center q-gutter-md q-pr-md">
       <q-input
+        class="col-md-2 col-xs-12"
         v-model="description"
         :rules="[
           (val) => val !== '' || 'Please insert the description of payment',
@@ -14,6 +18,7 @@
         label="Description"
       />
       <q-input
+        class="col-md-2 col-xs-12"
         v-model="date"
         :rules="[(val) => val !== '' || 'Please insert the date of payment']"
         filled
@@ -21,6 +26,7 @@
         label="Date"
       />
       <q-input
+        class="col-md-2 col-xs-12"
         v-model.lazy="price"
         :rules="[(val) => val !== '' || 'Please insert the price of payment']"
         filled
@@ -28,6 +34,7 @@
       />
       <q-input
         v-if="isObservationShow"
+        class="col-md-2 col-xs-12"
         filled
         v-model="observation"
         label="Observation"
@@ -41,19 +48,32 @@
       />
       <q-btn
         label="Register Payment"
-        color="primary"
+        :color="formDisabled ? 'grey-7' : 'primary'"
         :disable="formDisabled"
+        no-caps
+        unelevated
         @click="registerPayment"
-      />
+      >
+        <q-tooltip v-if="formDisabled">
+          <span>Fill the required form!</span>
+        </q-tooltip>
+      </q-btn>
     </div>
     <div class="row q-pt-lg">
       <q-input
-        class="q-pb-md"
+        class="q-pb-md col-md-1 col-xs-12 col-sm-12"
         filled
         type="month"
         v-model="monthYearFilter"
         label="Filter Month and Year"
         @update:model-value="changeFilterDate"
+      />
+      <q-input
+        class="q-pb-md q-md-ml-md col-md-3 col-xs-12 col-sm-12"
+        filled
+        type="text"
+        v-model="searchTable"
+        label="Search in the table"
       />
       <q-table
         class="full-width"
@@ -61,6 +81,7 @@
         :columns="columns"
         table-header-style="background-color: #3988d6; color: #fff"
         separator="cell"
+        :filter="searchTable"
       >
         <template #body="props">
           <q-tr>
@@ -79,12 +100,10 @@
               {{ formatPrice(props.row.price) }}
             </q-td>
             <q-td>
-              <q-btn
+              <q-icon
                 class="q-mr-md"
-                style="width: 1%; height: 1%"
-                round
-                color="positive"
-                icon="menu"
+                name="menu"
+                size="20px"
               />
               <q-menu fit>
                 <q-list style="min-width: 100px">
@@ -124,7 +143,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, shallowRef } from 'vue';
 import { PaymentModel, PaymentsModel } from 'src/models/Payment';
 import {
   addDoc,
@@ -190,6 +209,7 @@ export default defineComponent({
       ],
       total: ref<string>('0'),
       monthYearFilter: ref(),
+      searchTable: shallowRef<string>('')
     };
   },
 
@@ -337,11 +357,16 @@ export default defineComponent({
               .finally(this.$q.loading.hide);
           }
         });
-    },
-
-    teste () {
-      return 'Teste'
     }
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.card-total {
+  background: rgb(194, 193, 193);
+  width: 100px;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+</style>
