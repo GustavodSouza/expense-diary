@@ -1,46 +1,49 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      component: () => import('layouts/MainLayout.vue'),
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    component: () => import('layouts/MainLayout.vue'),
 
-      children: [
-        { path: '', component: () => import('pages/Login.vue') },
-        { path: '/login', component: () => import('pages/Login.vue') },
-        { path: '/register', component: () => import('pages/Register.vue') },
-        {
-          path: '/payments',
-          component: () => import('pages/Payments.vue'),
-          meta: { requiresAuth: true },
-          beforeEnter: (to, from, next) => {
-            const user = localStorage.getItem('user');
-            if (!user) {
-              return next({ path: '/login' });
-            }
+    children: [
+      { path: '', component: () => import('pages/Login.vue') },
+      { path: '/login', component: () => import('pages/Login.vue') },
+      { path: '/register', component: () => import('pages/Register.vue') },
+      {
+        path: '/payments',
+        component: () => import('pages/Payments.vue'),
+        meta: { requiresAuth: true },
+        beforeEnter: (to, from, next) => {
+          const user = localStorage.getItem('user');
+          if (!user) {
+            return next({ path: '/login' });
+          }
 
-            next();
-          },
+          next();
         },
-        { path: '/about', component: () => import('pages/About.vue') },
-      ],
-    },
+      },
+      { path: '/about', component: () => import('pages/About.vue') },
+    ],
+  },
 
-    {
-      path: '/login',
-      component: () => import('pages/Login.vue'),
-    },
+  {
+    path: '/login',
+    component: () => import('pages/Login.vue'),
+  },
 
-    // Always leave this as last one,
-    // but you can also remove it
-    {
-      path: '/:catchAll(.*)*',
-      component: () => import('pages/NotFound.vue'),
-    },
-  ],
+  // Always leave this as last one,
+  // but you can also remove it
+  {
+    path: '/:catchAll(.*)*',
+    component: () => import('pages/NotFound.vue'),
+  },
+];
+
+console.log(routes)
+
+createRouter({
+  history: createWebHistory(), // Aqui estamos utilizando o modo "history"
+  routes
 });
 
-
-export default router;
+export default routes;
